@@ -39,25 +39,22 @@ public class Scraper {
 
     public ArrayList<String> linkScraper() throws IOException {
 
-        String url = "https://www.dumpert.nl/";
 
         ArrayList<String> urls = new ArrayList<>();
 
-        for (int i = 0; i <= amountOfPages; i++) {
-
-            if (i >= 1) {
-                url = url + (i + 1) + "/";
-            }
+        for (int pageNumber = 0; pageNumber <= amountOfPages; pageNumber++) {
+            String url = "https://www.dumpert.nl/" + (pageNumber + 1) + "/";
 
             Document document = loadPage(url);
             Elements elements = document.getElementsByClass("dumpthumb");
 
-            if (i != amountOfPages) {
+            if (pageNumber != amountOfPages) {
                 for (Element element : elements) {
                     urls.add(element.attr("href"));
                 }
             } else {
                 for (int j = 0; j < amountOfDumps; j++) {
+                    System.out.println("restant");
                     urls.add(elements.get(j).attr("href"));
                 }
             }
@@ -103,7 +100,7 @@ public class Scraper {
         writer.close();
 
         counter++;
-        doubleProperty.set(counter/(amountOfPages * 15 + amountOfDumps));
+        doubleProperty.set(counter / (amountOfPages * 15 + amountOfDumps));
     }
 
     public CommentEntry singleComment(Element commentEntry) {
@@ -153,6 +150,7 @@ public class Scraper {
         System.setProperty("http.agent", "Chrome");
         Document document = Jsoup.connect(url)
                 .cookie("cpc", "blob")
+                .cookie("nsfw", "1")
                 .followRedirects(true)
                 .get();
         return document;

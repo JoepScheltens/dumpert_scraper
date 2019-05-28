@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 
-public class Controller implements Initializable{
+public class Controller implements Initializable {
 
     public Button button;
     public ProgressBar progressBar;
@@ -41,22 +41,28 @@ public class Controller implements Initializable{
         button.setOnAction(event -> {
             new Thread(() -> {
                 try {
-                    try{
-                         amountOfPages = Integer.parseInt(simpleStringProperty.get());
-                         PlatformImpl.runLater(() -> simpleStringPropertyLabel.setValue("Scraping " + amountOfPages + " pages..."));
+                    try {
+                        amountOfPages = Integer.parseInt(simpleStringProperty.get());
+                        PlatformImpl.runLater(() -> simpleStringPropertyLabel.setValue("Scraping " + amountOfPages + " pages..."));
 
-                    } catch (NumberFormatException e){
-                        try{
+                    } catch (NumberFormatException e) {
+                        try {
                             amountOfDumps = Integer.parseInt(simpleStringPropertyDumps.get());
-                            PlatformImpl.runLater(() ->  simpleStringPropertyLabel.setValue("Scraping " + amountOfDumps + " dumps..."));
-                        }
-                        catch (NumberFormatException n){
+                            PlatformImpl.runLater(() -> simpleStringPropertyLabel.setValue("Scraping " + amountOfDumps + " dumps..."));
+                        } catch (NumberFormatException n) {
                             System.out.println("User did not enter a valid number");
                         }
                     }
-                    Scraper scraper = new Scraper( amountOfPages, amountOfDumps);
+
+                    long begin = System.currentTimeMillis();
+
+                    Scraper scraper = new Scraper(amountOfPages, amountOfDumps);
                     ArrayList<String> links = scraper.linkScraper();
-                    amountPerMin = Integer.parseInt(simpleStringPropertyPerMin.get());
+                    try {
+                        amountPerMin = Integer.parseInt(simpleStringPropertyPerMin.get());
+                    } catch (NumberFormatException e) {
+                        System.out.println("Amount per minute empty");
+                    }
 
                     long duration = 0L;
                     int counter = 0;
@@ -71,9 +77,9 @@ public class Controller implements Initializable{
                         duration += (System.currentTimeMillis() - start);
 
                         if (++counter == amountPerMin && amountPerMin != 0) {
-                            if(duration < 60_000){
+                            if (duration < 60_000) {
                                 long difference = 60_000 - duration;
-                                System.out.println("Was too quick in scraping, sleeping for "+difference+" ms.");
+                                System.out.println("Was too quick in scraping, sleeping for " + difference + " ms.");
                                 try {
                                     Thread.sleep(difference);
                                 } catch (InterruptedException e) {
@@ -85,7 +91,7 @@ public class Controller implements Initializable{
                         }
                     }
                     PlatformImpl.runLater(() -> simpleStringPropertyLabel.setValue("FINISHED!"));
-
+                    System.out.println(((System.currentTimeMillis() - begin)/1000.0) + " seconds");
                     System.out.println("-FINISHED-");
 
 
